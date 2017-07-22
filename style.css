@@ -1,0 +1,51 @@
+html {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.board {
+  flex: 1 1 95%;
+  width: 100%;
+  position: relative;
+}
+
+.list {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  -ms-touch-action: none;
+  touch-action: none;
+  width: 200px;
+  background: white;
+}
+
+.list:hover {
+  cursor: move;
+}
+
+.list ul {
+  list-style: none;
+}
+
+.list h1[contenteditable], .list li[contenteditable] {
+  cursor: text;
+}
+
+.mdc-fab {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+}
+
+.li-add {
+  list-style-image: url('ic_add_black_24px.svg');
+}
+
+.list .mdc-card__title {
+  font-size: 1.2em;
+}
