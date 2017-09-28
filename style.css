@@ -49,3 +49,8 @@ body {
 .list .mdc-card__title {
   font-size: 1.2em;
 }
+
+.list.mdc-card {
+  transition: box-shadow ease-in-out 0.1s;
+}
+
