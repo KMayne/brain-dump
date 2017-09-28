@@ -20,7 +20,8 @@ body {
   left: 10px;
   -ms-touch-action: none;
   touch-action: none;
-  width: 200px;
+  min-width: 100px;
+  max-width: 300px;
   background: white;
 }
 
@@ -54,3 +55,40 @@ body {
   transition: box-shadow ease-in-out 0.1s;
 }
 
+section#board {
+  background: url(grid.svg);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.delete-icon, .delete-icon:visited {
+  cursor: pointer;
+  color: lightgrey;
+}
+
+.delete-icon:hover {
+  color: grey;
+}
+
+.delete-icon:active {
+  color: red;
+}
+
+.card-contents {
+  margin: 0.5em;
+  display: flex;
+}
+
+.card-contents > p {
+  margin: 0;
+  flex: 1 1 90%;
+  padding: 0 5px;
+  line-height: 24px;
+  overflow-x: auto;
+}
+
+.card-contents > i {
+  margin: 0;
+  flex: 0 0 10%;
+  height: 24px;
+}
