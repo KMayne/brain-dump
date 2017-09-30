@@ -1,5 +1,8 @@
 html {
   height: 100%;
+  width: 100%;
+  /*overflow: hidden;
+  touch-action: none;*/
 }
 
 body {
@@ -20,7 +23,6 @@ body {
   left: 10px;
   -ms-touch-action: none;
   touch-action: none;
-  min-width: 100px;
   max-width: 300px;
   background: white;
 }
@@ -61,9 +63,24 @@ section#board {
   background-repeat: no-repeat;
 }
 
-.delete-icon, .delete-icon:visited {
+.list .delete-icon, .list .delete-icon:visited {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  /*flex-basis: 0;*/
+  width: 0;
+  /*transition: flex-basis ease-in-out 0.1s;*/
+  transition: width ease-in-out 0.1s;
+  overflow-x: hidden;
+
   cursor: pointer;
   color: lightgrey;
+}
+
+.list:hover .delete-icon {
+  /*flex-basis: 24px;*/
+  width: 24px;
 }
 
 .delete-icon:hover {
@@ -74,6 +91,10 @@ section#board {
   color: red;
 }
 
+.delete-icon:focus:active {
+  outline: none;
+}
+
 .card-contents {
   margin: 0.5em;
   display: flex;
@@ -81,14 +102,20 @@ section#board {
 
 .card-contents > p {
   margin: 0;
-  flex: 1 1 90%;
+  flex: 1 1;
   padding: 0 5px;
   line-height: 24px;
   overflow-x: auto;
+  touch-action: none;
 }
 
 .card-contents > i {
   margin: 0;
-  flex: 0 0 10%;
+  flex: 0 0 24px;
   height: 24px;
+  touch-action: none;
+}
+
+.material-icons {
+  user-select: none;
 }

@@ -1,65 +1,69 @@
 $(function () {
   Vue.component('list-component', {
-  props: ['id', 'list'],
-  template: `
-  <article class="list mdc-card" v-bind:style="position"
+    props: ['id', 'list'],
+    template: `
+    <article class="list mdc-card" v-bind:style="style"
     :class="{ 'mdc-elevation--z4': this.hover && !this.list.dragging,
-              'mdc-elevation--z8': this.list.dragging }"
+    'mdc-elevation--z8': this.list.dragging }"
     @mouseover="() => { this.hover = true; }"
-    @mouseleave="() => { this.hover = false; }">
+    @mouseleave="() => { this.hover = false; }"
+    @dblclick="() => this.$emit('dblclick')">
     <div class="card-contents">
-      <p contenteditable
-        @blur="titleChanged"
-        @paste="stripNewLine">{{list.title}}</p>
-      <i class="material-icons delete-icon" @click="() => this.$emit('delete-list', this.id)">delete</i></a>
+    <p contenteditable
+    @blur="titleChanged"
+    @paste="stripNewLine">{{list.title}}</p>
+    <button class="delete-icon" @click="() => this.$emit('delete-list', this.id)">
+    <i class="material-icons">delete</i>
+    </button>
     </div>
-  </article>`,
-  computed: {
-    position: function () {
-      return {
-        left: this.list.pos.x + 'px',
-        top: this.list.pos.y + 'px'
-      };
-    }
-  },
-  methods: {
-    titleChanged: function (event) {
-      let title = $(event.target).text();
-      this.list.title = title;
-      pageView.$emit('listUpdate');
+    </article>`,
+    computed: {
+      style: function () {
+        return {
+          left: this.list.pos.x + 'px',
+          top: this.list.pos.y + 'px',
+          backgroundColor: this.list.colour
+        };
+      }
     },
-    todoChanged: function (event) {
-      let li = $(event.target);
-      let todo = li.text();
-      let index = parseInt(li.attr('data-todo-idx'));
-      Vue.set(this.list.items, index, todo);
-      pageView.$emit('listUpdate');
+    methods: {
+      titleChanged: function (event) {
+        let title = $(event.target).text();
+        this.list.title = title;
+        pageView.$emit('listUpdate');
+      },
+      todoChanged: function (event) {
+        let li = $(event.target);
+        let todo = li.text();
+        let index = parseInt(li.attr('data-todo-idx'));
+        Vue.set(this.list.items, index, todo);
+        pageView.$emit('listUpdate');
+      },
+      addTodo: function (text) {
+        this.list.items.push(text);
+        pageView.$emit('listUpdate');
+      },
+      keypressedAdd: function (event) {
+        if (event.which != 13) return;
+        // Ignores enter key
+        event.preventDefault();
+        let todo = $(event.target).text();
+        if (todo === '') return;
+        // Add new todo
+        this.addTodo(todo);
+        this.addContents = $(event.target).text('');
+      },
+      clearInsert: function () {
+        this.addContents = '';
+      },
+      stripNewLine: function (event) {
+        //strips elements added to the editable tag when pasting
+        let self = $(this);
+        setTimeout(function() { self.html(self.text()); }, 0);
+      }
     },
-    addTodo: function (text) {
-      this.list.items.push(text);
-      pageView.$emit('listUpdate');
-    },
-    keypressedAdd: function (event) {
-      if (event.which != 13) return;
-      // Ignores enter key
-      event.preventDefault();
-      let todo = $(event.target).text();
-      if (todo === '') return;
-      // Add new todo
-      this.addTodo(todo);
-      this.addContents = $(event.target).text('');
-    },
-    clearInsert: function () {
-      this.addContents = '';
-    },
-    stripNewLine: function (event) {
-      //strips elements added to the editable tag when pasting
-      let self = $(this);
-      setTimeout(function() { self.html(self.text()); }, 0);
-    }
-  },
-  data: () => ({ hover: false, addContents: 'Todo item' })
-});
+    data: () => ({ hover: false, addContents: 'Todo item' })
+  });
 
   const initialListString = window.localStorage.getItem('lists');
   let initalLists;
@@ -72,6 +76,25 @@ $(function () {
       alert('Error parsing lists');
       initalLists = {}
     }
+  }
+
+  const LIST_COLOURS = [
+    'white',
+    'rgb(255, 138, 128)',
+    'rgb(255, 209, 128)',
+    'rgb(255, 255, 141)',
+    'rgb(204, 255, 144)',
+    'rgb(167, 255, 235)',
+    'rgb(128, 216, 255)',
+    'rgb(130, 177, 255)',
+    'rgb(179, 136, 255)',
+    'rgb(248, 187, 208)',
+    'rgb(215, 204, 200)',
+    'rgb(207, 216, 220)'
+  ];
+
+  function nextColour(colour) {
+    return LIST_COLOURS[(LIST_COLOURS.indexOf(colour) + 1) % LIST_COLOURS.length]
   }
 
   let pageView = new Vue({
@@ -95,7 +118,7 @@ $(function () {
       this.$emit('listUpdate');
       window.onbeforeunload = function handleUnload(e) {
         let listStr = window.localStorage.getItem('lists');
-         if (listStr !== JSON.stringify(pageView.lists)) {
+        if (listStr !== JSON.stringify(pageView.lists)) {
           const dialogText = 'Your lists have not been saved.';
           e.returnValue = dialogText;
           return dialogText;
@@ -105,21 +128,31 @@ $(function () {
     methods: {
       addList: function () {
         let key = generateUniqueKey(this.lists);
-        Vue.set(this.lists, key, new List());
+        const containerRect = this.$el.getBoundingClientRect();
+        const listPos = {
+          x: containerRect.width / 2 - 46,
+          y: containerRect.height / 2 - 22
+        };
+        Vue.set(this.lists, key, new List(listPos, 'New item'));
         this.$emit('listUpdate');
       },
       deleteList: function (key) {
         Vue.delete(this.lists, key);
+        this.$emit('listUpdate');
+      },
+      changeListColour: function (key) {
+        this.lists[key].colour = nextColour(this.lists[key].colour);
         this.$emit('listUpdate');
       }
     }
   });
 
   class List {
-    constructor(title) {
-      this.title = title || 'Item';
+    constructor(startPos = { x: 0, y: 0 }, title = '') {
+      this.title = title;
       this.items = [];
-      this.pos = { x: 0, y: 0 };
+      this.pos = startPos;
+      this.colour =
       this.dragging = false;
     }
   }
@@ -138,9 +171,11 @@ $(function () {
 
     onstart(event) {
       pageView.$emit('startListDrag', event.target.getAttribute('data-list-id'));
+      return false;
     },
     onend(event) {
       pageView.$emit('endListDrag', event.target.getAttribute('data-list-id'));
+      return false;
     },
     onmove(event) {
       pageView.$emit(
@@ -149,9 +184,10 @@ $(function () {
         event.dx,
         event.dy
       );
+      return false;
     }
   })
-  // .preventDefault('never')
+  .preventDefault('never')
   .on('up', event => pageView.$emit('releaseListDrag', event.target.getAttribute('data-list-id')))
   .styleCursor(false);
 

@@ -4,15 +4,16 @@
   <link rel="stylesheet" href="normalize.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
-  <link rel="stylesheet" href="style.css">
   <style>
   :root {
     --mdc-theme-primary: #607d8b;
+    --mdc-theme-secondary: #00E5FF;
     --mdc-theme-accent: #cfd8dc;
     --mdc-theme-background: #fafafa;
     --mdc-theme-text-primary-on-accent: #000;
   }
   </style>
+  <link rel="stylesheet" href="style.css">
   <script src="vue.js"></script>
   <script src="jquery.js"></script>
   <script src="interact.js"></script>
@@ -23,7 +24,7 @@
     <button class="mdc-fab mdc-fab--primary material-icons" v-on:click='addList'>
       <span class="mdc-fab__icon mdc-theme-text-primary-on-accent">add</span>
     </button>
-    <list-component v-for="(list, id) in lists" :list="list" :id="id" :key="id" :data-list-id="id" @delete-list="deleteList"></list-component>
+    <list-component v-for="(list, id) in lists" :list="list" :id="id" :key="id" :data-list-id="id" @delete-list="deleteList" @dblclick="() => changeListColour(id)"></list-component>
   </section>
 </body>
 </html>
