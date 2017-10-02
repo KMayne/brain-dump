@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "A simple web app to get throughts and ideas out & organise them.",
   "main": "index.html",
+  "repository": "https://github.com/KMayne/brain-dump.git",
   "scripts": {
     "start": "serve",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,5 +18,8 @@
     "web"
   ],
   "author": "Kian Mayne",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^6.2.0"
+  }
 }
