@@ -44,7 +44,7 @@ $(function () {
         pageView.$emit('listUpdate');
       },
       keypressedAdd: function (event) {
-        if (event.which != 13) return;
+        if (event.which !== 13) return;
         // Ignores enter key
         event.preventDefault();
         let todo = $(event.target).text();
@@ -65,16 +65,17 @@ $(function () {
     data: () => ({ hover: false, addContents: 'Todo item' })
   });
 
-  const initialListString = window.localStorage.getItem('lists');
-  let initalLists;
-  if (!initialListString) {
+  const initialListString = localStorage.getItem('lists');
+  let initialLists ;
+  if (!initialListString || initialListString === '') {
     initialLists = {};
+    localStorage.setItem('lists', JSON.stringify({}));
   } else {
     try {
-      initalLists = JSON.parse(initialListString);
+      initialLists = JSON.parse(initialListString);
     } catch (e) {
       alert('Error parsing lists');
-      initalLists = {}
+      initialLists = {}
     }
   }
 
@@ -100,7 +101,7 @@ $(function () {
   let pageView = new Vue({
     el: '#board',
     data: {
-      lists: initalLists
+      lists: initialLists
     },
     mounted: function () {
       this.$on('translateList', (id, dx, dy) => {
@@ -117,7 +118,7 @@ $(function () {
       this.$on('listUpdate', () => window.localStorage.setItem('lists', JSON.stringify(this.lists)));
       this.$emit('listUpdate');
       window.onbeforeunload = function handleUnload(e) {
-        let listStr = window.localStorage.getItem('lists');
+        let listStr = localStorage.getItem('lists');
         if (listStr !== JSON.stringify(pageView.lists)) {
           const dialogText = 'Your lists have not been saved.';
           e.returnValue = dialogText;
