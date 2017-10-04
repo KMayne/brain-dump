@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html class="mdc-typography">
 <head>
+  <title>BrainDump</title>
   <link rel="icon" href="favicon.ico">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
   <style>
   :root {
-    --mdc-theme-primary: #607d8b;
-    --mdc-theme-secondary: #00E5FF;
-    --mdc-theme-accent: #cfd8dc;
+    --mdc-theme-primary: #2196f3;
+    --mdc-theme-secondary: #c6ff00;
+    --mdc-theme-accent: #0069c0;
     --mdc-theme-background: #fafafa;
-    --mdc-theme-text-primary-on-accent: #000;
+    --mdc-theme-text-primary-on-secondary: #000;
   }
   </style>
   <link rel="stylesheet" href="style.css">
@@ -21,9 +22,17 @@
   <script src="page.vue.js"></script>
 </head>
 <body>
+  <header class="mdc-toolbar">
+  <div class="mdc-toolbar__row">
+    <section class="mdc-toolbar__section mdc-toolbar__section--align-start">
+      <span class="toolbar-logo-container"><img src="brain.png" class="toolbar-logo"/></span>
+      <span class="mdc-toolbar__title">BrainDump</span>
+    </section>
+  </div>
+  </header>
   <section class="board mdc-theme--background" id="board">
     <button class="mdc-fab mdc-fab--primary material-icons" v-on:click='addList'>
-      <span class="mdc-fab__icon mdc-theme-text-primary-on-accent">add</span>
+      <span class="mdc-fab__icon ">add</span>
     </button>
     <list-component v-for="(list, id) in lists" :list="list" :id="id" :key="id" :data-list-id="id" @delete-list="deleteList" @dblclick="() => changeListColour(id)"></list-component>
   </section>

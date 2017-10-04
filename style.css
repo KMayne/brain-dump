@@ -119,3 +119,11 @@ section#board {
 .material-icons {
   user-select: none;
 }
+
+.toolbar-logo-container {
+  padding: 4px;
+}
+
+.toolbar-logo {
+  width: 48px;
+}
