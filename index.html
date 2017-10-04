@@ -2,6 +2,10 @@
 <html class="mdc-typography">
 <head>
   <title>BrainDump</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Kian Mayne">
+  <meta name="description" content="BrainDump helps you get your ideas on to a page and play with them."
   <link rel="icon" href="favicon.ico">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -32,7 +36,7 @@
   </header>
   <section class="board mdc-theme--background" id="board">
     <button class="mdc-fab mdc-fab--primary material-icons" v-on:click='addList'>
-      <span class="mdc-fab__icon ">add</span>
+      <span class="mdc-fab__icon">add</span>
     </button>
     <list-component v-for="(list, id) in lists" :list="list" :id="id" :key="id" :data-list-id="id" @delete-list="deleteList" @dblclick="() => changeListColour(id)"></list-component>
   </section>
