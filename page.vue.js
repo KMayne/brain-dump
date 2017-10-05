@@ -1,28 +1,32 @@
 $(function () {
   Vue.component('card-component', {
-    props: ['id', 'card'],
+    props: ['card'],
     template: `
-    <article class="card mdc-card" v-bind:style="style"
-    :class="{ 'mdc-elevation--z4': this.hover && !this.card.dragging,
-    'mdc-elevation--z8': this.card.dragging }"
-    @mouseover="() => { this.hover = true; }"
-    @mouseleave="() => { this.hover = false; }"
-    @dblclick="() => this.$emit('dblclick')">
-    <div class="card-contents">
-    <p contenteditable
-    @click="contentsClicked"
-    @blur="contentsChanged">{{card.contents}}</p>
-    <button class="delete-icon" @click="() => this.$emit('delete-card', this.id)">
-    <i class="material-icons">delete</i>
-    </button>
-    </div>
-    </article>`,
+      <article class="card mdc-card" :style="style" :class="classes"
+        @mouseover="() => this.hover = true"
+        @mouseleave="() => this.hover = false"
+        @click.ctrl="ctrlClicked">
+        <div class="card-contents">
+          <p contenteditable @click="contentsClicked" @blur="contentsChanged">
+            {{card.contents}}
+          </p>
+          <button class="delete-icon" @click="deleteClicked">
+            <i class="material-icons">delete</i>
+          </button>
+        </div>
+      </article>`,
     computed: {
       style: function () {
         return {
           left: this.card.pos.x + 'px',
           top: this.card.pos.y + 'px',
           backgroundColor: this.card.colour
+        };
+      },
+      classes: function () {
+        return {
+          'mdc-elevation--z4': this.hover && !this.card.dragging,
+          'mdc-elevation--z8': this.card.dragging
         };
       }
     },
@@ -35,25 +39,32 @@ $(function () {
       contentsChanged: function (event) {
         let contents = $(event.target).text();
         this.card.contents = contents;
-        pageView.$emit('cardUpdate');
+        pageVue.$emit('cardUpdate');
+      },
+      deleteClicked: function () {
+        this.$emit('delete-card');
+      },
+      ctrlClicked: function () {
+        this.$emit('change-card-colour');
       }
     },
-    data: () => ({ hover: false, addContents: 'Todo item' })
+    data: () => ({ hover: false })
   });
 
-  const initialCardString = localStorage.getItem('cards');
-  let initialCards;
-  if (!initialCardString || initialCardString === '') {
-    initialCards = {};
-    localStorage.setItem('cards', JSON.stringify(initialCards));
-  } else {
-    try {
-      initialCards = JSON.parse(initialCardString);
-    } catch (e) {
-      alert('Error parsing cards');
-      initialCards = {}
-    }
+  function getNewDumpName() {
+    return (new Date()).toString().split(' ').slice(0, 5).join(' ');
   }
+
+  if (localStorage.getItem('version') !== '1') {
+    localStorage.setItem('version', '1');
+    localStorage.setItem('cards', JSON.stringify({}));
+    localStorage.setItem('dumpName', getNewDumpName());
+    localStorage.setItem('dumps', '{}');
+  }
+
+  const initialCards = JSON.parse(localStorage.getItem('cards'));
+  let initialDumpName = localStorage.getItem('dumpName');
+  const initialDumps = JSON.parse(localStorage.getItem('dumps'));
 
   const CARD_COLOURS = [
     'white',
@@ -69,15 +80,14 @@ $(function () {
     'rgb(215, 204, 200)',
     'rgb(207, 216, 220)'
   ];
+  CARD_COLOURS.next = colour => CARD_COLOURS[(CARD_COLOURS.indexOf(colour) + 1) % CARD_COLOURS.length];
 
-  function nextColour(colour) {
-    return CARD_COLOURS[(CARD_COLOURS.indexOf(colour) + 1) % CARD_COLOURS.length]
-  }
-
-  let pageView = new Vue({
+  let pageVue = window.pageVue = new Vue({
     el: '#board',
     data: {
-      cards: initialCards
+      cards: initialCards,
+      dumpName: initialDumpName,
+      dumps: initialDumps,
     },
     mounted: function () {
       this.$on('translateCard', (id, dx, dy) => {
@@ -92,10 +102,14 @@ $(function () {
         this.$emit('cardUpdate');
       });
       this.$on('cardUpdate', () => window.localStorage.setItem('cards', JSON.stringify(this.cards)));
+      const dialog = new mdc.dialog.MDCDialog(document.querySelector('#dump-selection-dialog'));
+      this.$on('viewDumpsClicked', () => dialog.show());
+      this.$on('newDumpPicked', () => dialog.close());
+
       this.$emit('cardUpdate');
       window.onbeforeunload = function handleUnload(e) {
         let cardStr = localStorage.getItem('cards');
-        if (cardStr !== JSON.stringify(pageView.cards)) {
+        if (cardStr !== JSON.stringify(pageVue.cards)) {
           const dialogText = 'Your cards have not been saved.';
           e.returnValue = dialogText;
           return dialogText;
@@ -119,8 +133,18 @@ $(function () {
         this.$emit('cardUpdate');
       },
       changeCardColour: function (key) {
-        this.cards[key].colour = nextColour(this.cards[key].colour);
+        this.cards[key].colour = CARD_COLOURS.next(this.cards[key].colour);
         this.$emit('cardUpdate');
+      },
+      switchDump: function (dumpName) {
+        this.dumps[this.dumpName] = this.cards;
+        this.dumpName = dumpName || getNewDumpName();
+        this.cards = this.dumps[dumpName] || {};
+        delete this.dumps[dumpName];
+        this.$emit('cardUpdate');
+        window.localStorage.setItem('dumpName', this.dumpName);
+        window.localStorage.setItem('dumps', JSON.stringify(this.dumps));
+        this.$emit('newDumpPicked');
       }
     }
   });
@@ -147,15 +171,15 @@ $(function () {
     autoscroll: true,
 
     onstart(event) {
-      pageView.$emit('startCardDrag', event.target.getAttribute('data-card-id'));
+      pageVue.$emit('startCardDrag', event.target.getAttribute('data-card-id'));
       return false;
     },
     onend(event) {
-      pageView.$emit('endCardDrag', event.target.getAttribute('data-card-id'));
+      pageVue.$emit('endCardDrag', event.target.getAttribute('data-card-id'));
       return false;
     },
     onmove(event) {
-      pageView.$emit(
+      pageVue.$emit(
         'translateCard',
         event.target.getAttribute('data-card-id'),
         event.dx,
@@ -165,7 +189,7 @@ $(function () {
     }
   })
   .preventDefault('never')
-  .on('up', event => pageView.$emit('releaseCardDrag', event.target.getAttribute('data-card-id')))
+  .on('up', event => pageVue.$emit('releaseCardDrag', event.target.getAttribute('data-card-id')))
   .styleCursor(false);
 
   function generateUniqueKey(object) {

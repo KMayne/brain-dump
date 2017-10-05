@@ -50,7 +50,7 @@ body {
   transition: box-shadow ease-in-out 0.1s;
 }
 
-section#board {
+main.board {
   background: url(grid.svg);
   background-size: 100% 100%;
   background-repeat: no-repeat;
@@ -126,4 +126,13 @@ section#board {
   font-family: 'Share', sans-serif;
   font-size: 1.5em;
   margin-left: 12px;
+}
+
+.dump-selection-item {
+  cursor: pointer;
+  width: 100%;
+}
+
+.button {
+  cursor: pointer;
 }
