@@ -27,7 +27,7 @@
         </section>
         <section class="mdc-toolbar__section mdc-toolbar__section--align-end mdc-toolbar__section--shrink-to-fit">
           <button class="mdc-toolbar__icon material-icons" alt="Show/hide grid" id="toggle-grid-button" @click="showGrid = !showGrid">{{showGrid ? 'grid_off' : 'grid_on'}}</button>
-          <button class="mdc-toolbar__icon material-icons" alt="Select dump" id="view-dumps-button">list</button>
+          <button class="mdc-toolbar__icon material-icons" alt="Select dump" id="view-dumps-button" @click="dumpSelectionDialog.show()">list</button>
         </section>
       </div>
     </header>
@@ -39,6 +39,20 @@
         <span class="mdc-fab__icon">add</span>
       </button>
     </main>
+    <aside id="new-dump-dialog" class="new-dump-dialog mdc-dialog" role="alertdialog" aria-labelledby="new-dump-dialog-label" data-mdc-auto-init="MDCDialog">
+      <div class="mdc-dialog__surface">
+        <section class="mdc-dialog__body">
+          <div class="mdc-textfield">
+            <input type="text" id="dump-name" name="dump-name" class="mdc-textfield__input" placeholder="Dump name" v-model="newDumpName" required data-mdc-auto-init="MDCTextfield">
+          </div>
+          <footer class="mdc-dialog__footer">
+            <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--cancel">Cancel</button>
+            <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Save</button>
+          </footer>
+        </section>
+      </div>
+      <div class="mdc-dialog__backdrop"></div>
+    </aside>
     <aside id="dump-selection-dialog" class="mdc-dialog" role="alertdialog" aria-labelledby="dump-selection-dialog-label" data-mdc-auto-init="MDCDialog">
       <div class="mdc-dialog__surface">
         <header class="mdc-dialog__header">
@@ -48,13 +62,13 @@
         </header>
         <section class="mdc-dialog__body">
           <ul class="mdc-list">
-            <li class="dump-selection-item mdc-list-item" data-mdc-auto-init="MDCRipple" @click="() => switchDump()">
+            <li class="dump-selection-item mdc-list-item" data-mdc-auto-init="MDCRipple" @click="newDump(); dumpSelectionDialog.close();">
               <i class="material-icons">add</i><span style="margin-left: 5px">New dump</span>
             </li>
-            <li class="dump-selection-item mdc-list-item" data-mdc-auto-init="MDCRipple">
+            <li class="dump-selection-item mdc-list-item" data-mdc-auto-init="MDCRipple" @click="dumpSelectionDialog.close()">
               {{dumpName}} (Current)
             </li>
-            <li v-for="(_, dumpName) in dumps" class="dump-selection-item  mdc-list-item" data-mdc-auto-init="MDCRipple" @click="() => switchDump(dumpName)">
+            <li v-for="(_, dumpName) in dumps" class="dump-selection-item  mdc-list-item" data-mdc-auto-init="MDCRipple" @click="switchDump(dumpName); dumpSelectionDialog.close();">
               {{dumpName}}
             </li>
           </ul>
@@ -64,9 +78,5 @@
     </aside>
   </div>
   <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
-  <script>
-    mdc.autoInit();
-    $(() => document.getElementById('view-dumps-button').addEventListener('click', () => window.pageVue.$emit('viewDumpsClicked')));
-  </script>
 </body>
 </html>

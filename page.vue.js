@@ -90,7 +90,8 @@ $(function () {
       cards: initialCards,
       dumpName: initialDumpName,
       dumps: initialDumps,
-      showGrid: initialShowGrid
+      showGrid: initialShowGrid,
+      newDumpName: ''
     },
     mounted: function () {
       this.$on('translateCard', (id, dx, dy) => {
@@ -105,9 +106,9 @@ $(function () {
         this.$emit('cardUpdate');
       });
       this.$on('cardUpdate', () => window.localStorage.setItem('cards', JSON.stringify(this.cards)));
-      const dialog = new mdc.dialog.MDCDialog(document.querySelector('#dump-selection-dialog'));
-      this.$on('viewDumpsClicked', () => dialog.show());
-      this.$on('newDumpPicked', () => dialog.close());
+      this.dumpSelectionDialog = new mdc.dialog.MDCDialog(document.querySelector('#dump-selection-dialog'));
+      this.newDumpDialog = new mdc.dialog.MDCDialog(document.querySelector('#new-dump-dialog'));
+      this.newDumpDialog.listen('MDCDialog:accept', () => this.switchDump(this.newDumpName));
 
       this.$emit('cardUpdate');
       window.onbeforeunload = function handleUnload(e) {
@@ -139,6 +140,11 @@ $(function () {
         this.cards[key].colour = CARD_COLOURS.next(this.cards[key].colour);
         this.$emit('cardUpdate');
       },
+      newDump: function () {
+        this.dumpSelectionDialog.close();
+        this.newDumpName = '';
+        this.newDumpDialog.show();
+      },
       switchDump: function (dumpName) {
         this.dumps[this.dumpName] = this.cards;
         this.dumpName = dumpName || getNewDumpName();
@@ -147,7 +153,6 @@ $(function () {
         this.$emit('cardUpdate');
         localStorage.setItem('dumpName', this.dumpName);
         localStorage.setItem('dumps', JSON.stringify(this.dumps));
-        this.$emit('newDumpPicked');
       }
     },
     watch: {
