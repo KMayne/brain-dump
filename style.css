@@ -10,14 +10,16 @@
 html {
   height: 100%;
   width: 100%;
-  /*overflow: hidden;
-  touch-action: none;*/
 }
 
 body {
+  height: 100%;
+}
+
+body > div {
+  height: 100%;
   display: flex;
   flex-direction: column;
-  height: 100%;
 }
 
 .board {
@@ -63,6 +65,10 @@ main.board {
   background: url(grid.svg);
   background-size: 100% 100%;
   background-repeat: no-repeat;
+}
+
+main.board.no-grid {
+  background: none;
 }
 
 .card .delete-icon, .card .delete-icon:visited {

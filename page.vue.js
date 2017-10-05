@@ -59,11 +59,13 @@ $(function () {
     localStorage.setItem('version', '1');
     localStorage.setItem('cards', JSON.stringify({}));
     localStorage.setItem('dumpName', getNewDumpName());
+    localStorage.setItem('showGrid', 'false');
     localStorage.setItem('dumps', '{}');
   }
 
   const initialCards = JSON.parse(localStorage.getItem('cards'));
   let initialDumpName = localStorage.getItem('dumpName');
+  const initialShowGrid = JSON.parse(localStorage.getItem('showGrid'));
   const initialDumps = JSON.parse(localStorage.getItem('dumps'));
 
   const CARD_COLOURS = [
@@ -82,12 +84,13 @@ $(function () {
   ];
   CARD_COLOURS.next = colour => CARD_COLOURS[(CARD_COLOURS.indexOf(colour) + 1) % CARD_COLOURS.length];
 
-  let pageVue = window.pageVue = new Vue({
-    el: '#board',
+  const pageVue = window.pageVue = new Vue({
+    el: '#vueRoot',
     data: {
       cards: initialCards,
       dumpName: initialDumpName,
       dumps: initialDumps,
+      showGrid: initialShowGrid
     },
     mounted: function () {
       this.$on('translateCard', (id, dx, dy) => {
@@ -142,9 +145,14 @@ $(function () {
         this.cards = this.dumps[dumpName] || {};
         delete this.dumps[dumpName];
         this.$emit('cardUpdate');
-        window.localStorage.setItem('dumpName', this.dumpName);
-        window.localStorage.setItem('dumps', JSON.stringify(this.dumps));
+        localStorage.setItem('dumpName', this.dumpName);
+        localStorage.setItem('dumps', JSON.stringify(this.dumps));
         this.$emit('newDumpPicked');
+      }
+    },
+    watch: {
+      showGrid: function (showGrid) {
+        localStorage.setItem('showGrid', JSON.stringify(showGrid));
       }
     }
   });
