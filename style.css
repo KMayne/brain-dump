@@ -126,4 +126,11 @@ section#board {
 
 .toolbar-logo {
   width: 48px;
+  margin-left: 12px;
+}
+
+.page-title {
+  font-family: 'Share', sans-serif;
+  font-size: 1.5em;
+  margin-left: 12px;
 }
