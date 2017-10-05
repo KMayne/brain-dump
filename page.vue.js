@@ -10,6 +10,7 @@ $(function () {
     @dblclick="() => this.$emit('dblclick')">
     <div class="card-contents">
     <p contenteditable
+    @click="titleClicked"
     @blur="titleChanged"
     @paste="stripNewLine">{{list.title}}</p>
     <button class="delete-icon" @click="() => this.$emit('delete-list', this.id)">
@@ -27,6 +28,11 @@ $(function () {
       }
     },
     methods: {
+      titleClicked: function (event) {
+        if ($(event.srcElement).text() === 'New item') {
+          document.execCommand('selectAll',false,null);
+        }
+      },
       titleChanged: function (event) {
         let title = $(event.target).text();
         this.list.title = title;
