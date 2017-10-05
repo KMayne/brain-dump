@@ -1,19 +1,18 @@
 $(function () {
-  Vue.component('list-component', {
-    props: ['id', 'list'],
+  Vue.component('card-component', {
+    props: ['id', 'card'],
     template: `
-    <article class="list mdc-card" v-bind:style="style"
-    :class="{ 'mdc-elevation--z4': this.hover && !this.list.dragging,
-    'mdc-elevation--z8': this.list.dragging }"
+    <article class="card mdc-card" v-bind:style="style"
+    :class="{ 'mdc-elevation--z4': this.hover && !this.card.dragging,
+    'mdc-elevation--z8': this.card.dragging }"
     @mouseover="() => { this.hover = true; }"
     @mouseleave="() => { this.hover = false; }"
     @dblclick="() => this.$emit('dblclick')">
     <div class="card-contents">
     <p contenteditable
-    @click="titleClicked"
-    @blur="titleChanged"
-    @paste="stripNewLine">{{list.title}}</p>
-    <button class="delete-icon" @click="() => this.$emit('delete-list', this.id)">
+    @click="contentsClicked"
+    @blur="contentsChanged">{{card.contents}}</p>
+    <button class="delete-icon" @click="() => this.$emit('delete-card', this.id)">
     <i class="material-icons">delete</i>
     </button>
     </div>
@@ -21,71 +20,42 @@ $(function () {
     computed: {
       style: function () {
         return {
-          left: this.list.pos.x + 'px',
-          top: this.list.pos.y + 'px',
-          backgroundColor: this.list.colour
+          left: this.card.pos.x + 'px',
+          top: this.card.pos.y + 'px',
+          backgroundColor: this.card.colour
         };
       }
     },
     methods: {
-      titleClicked: function (event) {
+      contentsClicked: function (event) {
         if ($(event.srcElement).text() === 'New item') {
-          document.execCommand('selectAll',false,null);
+          document.execCommand('selectAll', false, null);
         }
       },
-      titleChanged: function (event) {
-        let title = $(event.target).text();
-        this.list.title = title;
-        pageView.$emit('listUpdate');
-      },
-      todoChanged: function (event) {
-        let li = $(event.target);
-        let todo = li.text();
-        let index = parseInt(li.attr('data-todo-idx'));
-        Vue.set(this.list.items, index, todo);
-        pageView.$emit('listUpdate');
-      },
-      addTodo: function (text) {
-        this.list.items.push(text);
-        pageView.$emit('listUpdate');
-      },
-      keypressedAdd: function (event) {
-        if (event.which !== 13) return;
-        // Ignores enter key
-        event.preventDefault();
-        let todo = $(event.target).text();
-        if (todo === '') return;
-        // Add new todo
-        this.addTodo(todo);
-        this.addContents = $(event.target).text('');
-      },
-      clearInsert: function () {
-        this.addContents = '';
-      },
-      stripNewLine: function (event) {
-        //strips elements added to the editable tag when pasting
-        let self = $(this);
-        setTimeout(function() { self.html(self.text()); }, 0);
+      contentsChanged: function (event) {
+        let contents = $(event.target).text();
+        this.card.contents = contents;
+        pageView.$emit('cardUpdate');
       }
     },
     data: () => ({ hover: false, addContents: 'Todo item' })
   });
 
-  const initialListString = localStorage.getItem('lists');
-  let initialLists ;
-  if (!initialListString || initialListString === '') {
-    initialLists = {};
-    localStorage.setItem('lists', JSON.stringify({}));
+  const initialCardString = localStorage.getItem('cards');
+  let initialCards;
+  if (!initialCardString || initialCardString === '') {
+    initialCards = {};
+    localStorage.setItem('cards', JSON.stringify(initialCards));
   } else {
     try {
-      initialLists = JSON.parse(initialListString);
+      initialCards = JSON.parse(initialCardString);
     } catch (e) {
-      alert('Error parsing lists');
-      initialLists = {}
+      alert('Error parsing cards');
+      initialCards = {}
     }
   }
 
-  const LIST_COLOURS = [
+  const CARD_COLOURS = [
     'white',
     'rgb(255, 138, 128)',
     'rgb(255, 209, 128)',
@@ -101,32 +71,32 @@ $(function () {
   ];
 
   function nextColour(colour) {
-    return LIST_COLOURS[(LIST_COLOURS.indexOf(colour) + 1) % LIST_COLOURS.length]
+    return CARD_COLOURS[(CARD_COLOURS.indexOf(colour) + 1) % CARD_COLOURS.length]
   }
 
   let pageView = new Vue({
     el: '#board',
     data: {
-      lists: initialLists
+      cards: initialCards
     },
     mounted: function () {
-      this.$on('translateList', (id, dx, dy) => {
-        this.lists[id].pos.x += dx;
-        this.lists[id].pos.y += dy;
+      this.$on('translateCard', (id, dx, dy) => {
+        this.cards[id].pos.x += dx;
+        this.cards[id].pos.y += dy;
       });
-      this.$on('startListDrag', id => {
-        this.lists[id].dragging = true;
+      this.$on('startCardDrag', id => {
+        this.cards[id].dragging = true;
       });
-      this.$on('endListDrag', id => {
-        this.lists[id].dragging = false;
-        this.$emit('listUpdate');
+      this.$on('endCardDrag', id => {
+        this.cards[id].dragging = false;
+        this.$emit('cardUpdate');
       });
-      this.$on('listUpdate', () => window.localStorage.setItem('lists', JSON.stringify(this.lists)));
-      this.$emit('listUpdate');
+      this.$on('cardUpdate', () => window.localStorage.setItem('cards', JSON.stringify(this.cards)));
+      this.$emit('cardUpdate');
       window.onbeforeunload = function handleUnload(e) {
-        let listStr = localStorage.getItem('lists');
-        if (listStr !== JSON.stringify(pageView.lists)) {
-          const dialogText = 'Your lists have not been saved.';
+        let cardStr = localStorage.getItem('cards');
+        if (cardStr !== JSON.stringify(pageView.cards)) {
+          const dialogText = 'Your cards have not been saved.';
           e.returnValue = dialogText;
           return dialogText;
         }
@@ -134,38 +104,37 @@ $(function () {
       window.mdc.autoInit();
     },
     methods: {
-      addList: function () {
-        let key = generateUniqueKey(this.lists);
+      addCard: function () {
+        let key = generateUniqueKey(this.cards);
         const containerRect = this.$el.getBoundingClientRect();
-        const listPos = {
+        const cardPos = {
           x: containerRect.width / 2 - 46,
           y: containerRect.height / 2 - 22
         };
-        Vue.set(this.lists, key, new List(listPos, 'New item'));
-        this.$emit('listUpdate');
+        Vue.set(this.cards, key, new Card(cardPos, 'New item'));
+        this.$emit('cardUpdate');
       },
-      deleteList: function (key) {
-        Vue.delete(this.lists, key);
-        this.$emit('listUpdate');
+      deleteCard: function (key) {
+        Vue.delete(this.cards, key);
+        this.$emit('cardUpdate');
       },
-      changeListColour: function (key) {
-        this.lists[key].colour = nextColour(this.lists[key].colour);
-        this.$emit('listUpdate');
+      changeCardColour: function (key) {
+        this.cards[key].colour = nextColour(this.cards[key].colour);
+        this.$emit('cardUpdate');
       }
     }
   });
 
-  class List {
-    constructor(startPos = { x: 0, y: 0 }, title = '') {
-      this.title = title;
-      this.items = [];
+  class Card {
+    constructor(startPos = { x: 0, y: 0 }, contents = '') {
+      this.contents = contents;
       this.pos = startPos;
       this.colour =
       this.dragging = false;
     }
   }
 
-  interact('.list')
+  interact('.card')
   .draggable({
     // disable inertial throwing
     inertia: false,
@@ -178,17 +147,17 @@ $(function () {
     autoscroll: true,
 
     onstart(event) {
-      pageView.$emit('startListDrag', event.target.getAttribute('data-list-id'));
+      pageView.$emit('startCardDrag', event.target.getAttribute('data-card-id'));
       return false;
     },
     onend(event) {
-      pageView.$emit('endListDrag', event.target.getAttribute('data-list-id'));
+      pageView.$emit('endCardDrag', event.target.getAttribute('data-card-id'));
       return false;
     },
     onmove(event) {
       pageView.$emit(
-        'translateList',
-        event.target.getAttribute('data-list-id'),
+        'translateCard',
+        event.target.getAttribute('data-card-id'),
         event.dx,
         event.dy
       );
@@ -196,7 +165,7 @@ $(function () {
     }
   })
   .preventDefault('never')
-  .on('up', event => pageView.$emit('releaseListDrag', event.target.getAttribute('data-list-id')))
+  .on('up', event => pageView.$emit('releaseCardDrag', event.target.getAttribute('data-card-id')))
   .styleCursor(false);
 
   function generateUniqueKey(object) {

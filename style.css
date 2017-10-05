@@ -17,7 +17,7 @@ body {
   position: relative;
 }
 
-.list {
+.card {
   position: absolute;
   top: 10px;
   left: 10px;
@@ -27,15 +27,11 @@ body {
   background: white;
 }
 
-.list:hover {
+.card:hover {
   cursor: move;
 }
 
-.list ul {
-  list-style: none;
-}
-
-.list h1[contenteditable], .list li[contenteditable] {
+.card p[contenteditable] {
   cursor: text;
 }
 
@@ -45,15 +41,12 @@ body {
   bottom: 16px;
 }
 
-.li-add {
-  list-style-image: url('ic_add_black_24px.svg');
-}
 
-.list .mdc-card__title {
+.card .mdc-card__title {
   font-size: 1.2em;
 }
 
-.list.mdc-card {
+.card.mdc-card {
   transition: box-shadow ease-in-out 0.1s;
 }
 
@@ -63,7 +56,7 @@ section#board {
   background-repeat: no-repeat;
 }
 
-.list .delete-icon, .list .delete-icon:visited {
+.card .delete-icon, .card .delete-icon:visited {
   border: none;
   background: none;
   padding: 0;
@@ -78,7 +71,7 @@ section#board {
   color: lightgrey;
 }
 
-.list:hover .delete-icon {
+.card:hover .delete-icon {
   /*flex-basis: 24px;*/
   width: 24px;
 }

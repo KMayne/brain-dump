@@ -36,10 +36,10 @@
   </div>
   </header>
   <section class="board mdc-theme--background" id="board">
-    <button class="mdc-fab mdc-fab--primary material-icons mdc-ripple-surface" data-mdc-auto-init="MDCRipple" v-on:click='addList'>
+    <button class="mdc-fab mdc-fab--primary material-icons mdc-ripple-surface" data-mdc-auto-init="MDCRipple" v-on:click='addCard'>
       <span class="mdc-fab__icon">add</span>
     </button>
-    <list-component v-for="(list, id) in lists" :list="list" :id="id" :key="id" :data-list-id="id" @delete-list="deleteList" @dblclick="() => changeListColour(id)"></list-component>
+    <card-component v-for="(card, id) in cards" :card="card" :id="id" :key="id" :data-card-id="id" @delete-card="deleteCard" @dblclick="() => changeCardColour(id)"></card-component>
   </section>
   <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
   <script>
