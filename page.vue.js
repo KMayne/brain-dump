@@ -131,6 +131,7 @@ $(function () {
           return dialogText;
         }
       };
+      window.mdc.autoInit();
     },
     methods: {
       addList: function () {

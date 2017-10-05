@@ -27,7 +27,7 @@
   <script src="page.vue.js"></script>
 </head>
 <body>
-  <header class="mdc-toolbar">
+  <header class="mdc-toolbar mdc-elevation--z4">
   <div class="mdc-toolbar__row">
     <section class="mdc-toolbar__section mdc-toolbar__section--align-start">
       <span class="toolbar-logo-container"><img src="brain.png" class="toolbar-logo"/></span>
@@ -36,10 +36,14 @@
   </div>
   </header>
   <section class="board mdc-theme--background" id="board">
-    <button class="mdc-fab mdc-fab--primary material-icons" v-on:click='addList'>
+    <button class="mdc-fab mdc-fab--primary material-icons mdc-ripple-surface" data-mdc-auto-init="MDCRipple" v-on:click='addList'>
       <span class="mdc-fab__icon">add</span>
     </button>
     <list-component v-for="(list, id) in lists" :list="list" :id="id" :key="id" :data-list-id="id" @delete-list="deleteList" @dblclick="() => changeListColour(id)"></list-component>
   </section>
+  <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+  <script>
+    mdc.autoInit();
+  </script>
 </body>
 </html>
